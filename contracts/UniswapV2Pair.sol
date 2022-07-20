@@ -12,7 +12,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
-    uint public constant MINIMUM_LIQUIDITY = 1000;
+    uint private constant MINIMUM_LIQUIDITY = 1000;
     bytes4 private constant SELECTOR = 0xa9059cbb; //bytes4(keccak256(bytes('transfer(address,uint256)')));
 
     address public factory;
@@ -202,6 +202,48 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+    }
+
+    // this low-level function should be called from a contract which performs important safety checks
+    function swapFor0(uint amount0Out, address to) external lock {
+        require(amount0Out != 0);
+        (uint112 _reserve0, uint112 _reserve1) = (reserve0, reserve1); // gas savings
+        require(amount0Out < _reserve0, 'R');
+
+        address _token0 = token0;
+        _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
+        uint balance0 = IERC20(_token0).balanceOf(address(this));
+        uint balance1 = IERC20(token1).balanceOf(address(this));
+
+        uint amount1In = balance1 > _reserve1 ? balance1 - _reserve1 : 0;
+        require(amount1In != 0, 'I');
+
+        uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
+        require(balance0.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000), 'K');
+
+        _update(balance0, balance1, _reserve0, _reserve1);
+        emit Swap(msg.sender, 0, amount1In, amount0Out, 0, to);
+    }
+
+    // this low-level function should be called from a contract which performs important safety checks
+    function swapFor1(uint amount1Out, address to) external lock {
+        require(amount1Out != 0);
+        (uint112 _reserve0, uint112 _reserve1) = (reserve0, reserve1); // gas savings
+        require(amount1Out < _reserve1, 'R');
+
+        address _token1 = token1;
+        _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+        uint balance0 = IERC20(token0).balanceOf(address(this));
+        uint balance1 = IERC20(_token1).balanceOf(address(this));
+
+        uint amount0In = balance0 > _reserve0 ? balance0 - _reserve0 : 0;
+        require(amount0In != 0, 'I');
+
+        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
+        require(balance0Adjusted.mul(balance1) >= uint(_reserve0).mul(_reserve1).mul(1000), 'K');
+
+        _update(balance0, balance1, _reserve0, _reserve1);
+        emit Swap(msg.sender, amount0In, 0, 0, amount1Out, to);
     }
 
     // force balances to match reserves

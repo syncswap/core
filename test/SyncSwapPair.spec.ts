@@ -182,6 +182,24 @@ describe('UniswapV2Pair', () => {
     expect(receipt.gasUsed).to.eq(72779)
   })
 
+  it('swap:simple:gas:0', async () => {
+    const token0Amount = expandTo18Decimals(5)
+    const token1Amount = expandTo18Decimals(10)
+    await addLiquidity(token0Amount, token1Amount)
+
+    // ensure that setting price{0,1}CumulativeLast for the first time doesn't affect our gas math
+    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
+    await pair.sync(overrides)
+
+    const swapAmount = expandTo18Decimals(1)
+    const expectedOutputAmount = BigNumber.from('453305446940074565')
+    await token1.transfer(pair.address, swapAmount)
+    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
+    const tx = await pair.swapFor0(expectedOutputAmount, wallet.address, overrides)
+    const receipt = await tx.wait()
+    expect(receipt.gasUsed).to.eq(71669)
+  })
+
   it('swap:gas:1', async () => {
     const token0Amount = expandTo18Decimals(5)
     const token1Amount = expandTo18Decimals(10)
@@ -198,6 +216,24 @@ describe('UniswapV2Pair', () => {
     const tx = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
     const receipt = await tx.wait()
     expect(receipt.gasUsed).to.eq(72779)
+  })
+
+  it('swap:simple:gas:1', async () => {
+    const token0Amount = expandTo18Decimals(5)
+    const token1Amount = expandTo18Decimals(10)
+    await addLiquidity(token0Amount, token1Amount)
+
+    // ensure that setting price{0,1}CumulativeLast for the first time doesn't affect our gas math
+    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
+    await pair.sync(overrides)
+
+    const swapAmount = expandTo18Decimals(1)
+    const expectedOutputAmount = BigNumber.from('1662497915624478906')
+    await token0.transfer(pair.address, swapAmount)
+    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
+    const tx = await pair.swapFor1(expectedOutputAmount, wallet.address, overrides)
+    const receipt = await tx.wait()
+    expect(receipt.gasUsed).to.eq(71679)
   })
 
   it('burn', async () => {
