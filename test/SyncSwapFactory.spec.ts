@@ -70,7 +70,7 @@ describe('UniswapV2Factory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(2244760)
+    expect(receipt.gasUsed).to.eq(2256602)
   })
 
   it('setFeeTo', async () => {
