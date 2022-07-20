@@ -23,7 +23,7 @@ export async function deployFactory(feeToSetter: string): Promise<Contract> {
 }
 
 export async function deployERC20(totalSupply: BigNumber): Promise<Contract> {
-  const contractFactory = await ethers.getContractFactory('ERC20');
+  const contractFactory = await ethers.getContractFactory('PairERC20');
   const contract = await contractFactory.deploy(totalSupply);
   await contract.deployed();
   return contract;

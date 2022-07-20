@@ -7,16 +7,10 @@ module.exports = {
   // hardhat-zksync-solc
   // The compiler configuration for 'zk' artifacts.
   zksolc: {
-    version: "0.1.0",
-    compilerSource: "docker",
+    version: "latest",
+    compilerSource: "binary",
     settings: {
-      optimizer: {
-        enabled: true,
-        runs: 999999
-      },
-      experimental: {
-        dockerImage: "matterlabs/zksolc",
-      },
+      compilerPath: "./zksolc-linux-amd64-v1.1.3",
     },
   },
 
