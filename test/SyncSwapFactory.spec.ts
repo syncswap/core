@@ -17,7 +17,7 @@ const TEST_ADDRESSES: [string, string] = [
   '0x2000000000000000000000000000000000000000'
 ]
 
-describe('UniswapV2Factory', () => {
+describe('SyncSwapFactory', () => {
   let wallet: SignerWithAddress
   let other: SignerWithAddress
   before(async () => {
@@ -70,19 +70,19 @@ describe('UniswapV2Factory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(2711300)
+    expect(receipt.gasUsed).to.eq(2915608)
   })
 
   it('setFeeTo', async () => {
-    await expect(factory.connect(other).setFeeTo(other.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
+    await expect(factory.connect(other).setFeeTo(other.address)).to.be.revertedWith('SyncSwapFactory: FORBIDDEN')
     await factory.setFeeTo(wallet.address)
     expect(await factory.feeTo()).to.eq(wallet.address)
   })
 
   it('setFeeToSetter', async () => {
-    await expect(factory.connect(other).setFeeToSetter(other.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
+    await expect(factory.connect(other).setFeeToSetter(other.address)).to.be.revertedWith('SyncSwapFactory: FORBIDDEN')
     await factory.setFeeToSetter(other.address)
     expect(await factory.feeToSetter()).to.eq(other.address)
-    await expect(factory.setFeeToSetter(wallet.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
+    await expect(factory.setFeeToSetter(wallet.address)).to.be.revertedWith('SyncSwapFactory: FORBIDDEN')
   })
 })

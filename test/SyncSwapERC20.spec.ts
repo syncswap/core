@@ -16,7 +16,7 @@ const TEST_AMOUNT = expandTo18Decimals(10)
 const MAX_UINT256 = BigNumber.from(2).pow(256).sub(1)
 //const CHAIN_ID = 280
 
-describe('UniswapV2ERC20', () => {
+describe('SyncSwapERC20', () => {
   let wallet: SignerWithAddress
   let other: SignerWithAddress
   before(async () => {
