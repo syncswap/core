@@ -56,19 +56,15 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         emit Approval(owner, spender, value);
     }
 
-    function _transfer(address from, address to, uint value) private {
-        balanceOf[from] = balanceOf[from].sub(value);
-        balanceOf[to] = balanceOf[to].add(value);
-        emit Transfer(from, to, value);
-    }
-
     function approve(address spender, uint value) external returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
 
     function transfer(address to, uint value) external returns (bool) {
-        _transfer(msg.sender, to, value);
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(value);
+        balanceOf[to] = balanceOf[to].add(value);
+        emit Transfer(msg.sender, to, value);
         return true;
     }
 
@@ -76,7 +72,9 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
         if (allowance[from][msg.sender] != uint(-1)) {
             allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
         }
-        _transfer(from, to, value);
+        balanceOf[from] = balanceOf[from].sub(value);
+        balanceOf[to] = balanceOf[to].add(value);
+        emit Transfer(from, to, value);
         return true;
     }
 
