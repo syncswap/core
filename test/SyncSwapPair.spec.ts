@@ -179,7 +179,7 @@ describe('UniswapV2Pair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(72779)
+    expect(receipt.gasUsed).to.eq(72713)
   })
 
   it('swap:simple:gas:0', async () => {
@@ -197,7 +197,7 @@ describe('UniswapV2Pair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swapFor0(expectedOutputAmount, wallet.address, overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(71669)
+    expect(receipt.gasUsed).to.eq(71603)
   })
 
   it('swap:gas:1', async () => {
@@ -215,7 +215,7 @@ describe('UniswapV2Pair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(72779)
+    expect(receipt.gasUsed).to.eq(72713)
   })
 
   it('swap:simple:gas:1', async () => {
@@ -233,7 +233,7 @@ describe('UniswapV2Pair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swapFor1(expectedOutputAmount, wallet.address, overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(71679)
+    expect(receipt.gasUsed).to.eq(71613)
   })
 
   it('burn', async () => {

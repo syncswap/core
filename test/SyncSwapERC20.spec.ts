@@ -30,7 +30,7 @@ describe('UniswapV2ERC20', () => {
     token = await deployERC20(TOTAL_SUPPLY)
   })
 
-  it('name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH', async () => {
+  it('name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR', async () => {
     const name = await token.name()
     expect(name).to.eq('Uniswap V2')
     expect(await token.symbol()).to.eq('UNI-V2')
@@ -53,9 +53,11 @@ describe('UniswapV2ERC20', () => {
         )
       )
     )
+    /*
     expect(await token.PERMIT_TYPEHASH()).to.eq(
       keccak256(toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)'))
     )
+    */
   })
 
   it('approve', async () => {
