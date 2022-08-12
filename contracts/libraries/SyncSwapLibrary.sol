@@ -26,13 +26,13 @@ library SyncSwapLibrary {
 
     // fetches and sorts the reserves for a pair
     function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-        (uint reserve0, uint reserve1,) = ISyncSwapPair(pairFor(factory, tokenA, tokenB)).getReserves();
+        (uint reserve0, uint reserve1) = ISyncSwapPair(pairFor(factory, tokenA, tokenB)).getReservesSimple();
         (reserveA, reserveB) = tokenA < tokenB ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
     function getReservesAndSwapFee(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB, uint swapFee) {
         ISyncSwapPair pair = ISyncSwapPair(pairFor(factory, tokenA, tokenB));
-        (uint reserve0, uint reserve1,) = pair.getReserves();
+        (uint reserve0, uint reserve1) = pair.getReservesSimple();
         (reserveA, reserveB, swapFee) = tokenA < tokenB ? (reserve0, reserve1, pair.getSwapFee()) : (reserve1, reserve0, pair.getSwapFee());
     }
 

@@ -32,7 +32,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
     }
 
     function _getReservesWithPair(address pair, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-        (uint reserve0, uint reserve1,) = ISyncSwapPair(pair).getReserves();
+        (uint reserve0, uint reserve1) = ISyncSwapPair(pair).getReservesSimple();
         (reserveA, reserveB) = tokenA < tokenB ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
@@ -552,7 +552,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
 
             uint amountOutput;
             { // scope to avoid stack too deep errors
-            (uint reserve0, uint reserve1,) = ISyncSwapPair(pair).getReserves();
+            (uint reserve0, uint reserve1) = ISyncSwapPair(pair).getReservesSimple();
             (uint reserveInput, uint reserveOutput) = input < output ? (reserve0, reserve1) : (reserve1, reserve0);
             uint amountInput = IERC20(input).balanceOf(pair).sub(reserveInput);
             amountOutput = SyncSwapLibrary.getAmountOut(amountInput, reserveInput, reserveOutput, ISyncSwapPair(pair).getSwapFee());

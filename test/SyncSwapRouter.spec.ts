@@ -108,7 +108,7 @@ describe('SyncSwapRouter', () => {
       overrides
     )
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(227339)
+    expect(receipt.gasUsed).to.eq(227297)
   })
 
   it('addLiquidityETH', async () => {
@@ -371,7 +371,7 @@ describe('SyncSwapRouter', () => {
         overrides
       )
       const receipt = await tx.wait()
-      expect(receipt.gasUsed).to.eq(110330) // 101898
+      expect(receipt.gasUsed).to.eq(110266) // 101898
     }).retries(3)
   })
 
@@ -515,7 +515,7 @@ describe('SyncSwapRouter', () => {
         }
       )
       const receipt = await tx.wait()
-      expect(receipt.gasUsed).to.eq(115413) // 138770
+      expect(receipt.gasUsed).to.eq(115349) // 138770
     }).retries(3)
   })
 

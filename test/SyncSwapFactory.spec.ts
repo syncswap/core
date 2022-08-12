@@ -82,7 +82,7 @@ describe('SyncSwapFactory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(3738730)
+    expect(receipt.gasUsed).to.eq(3760605)
   })
 
   it('setFeeTo', async () => {
