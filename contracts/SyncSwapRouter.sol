@@ -3,7 +3,7 @@ pragma solidity =0.5.17;
 import './interfaces/ISyncSwapFactory.sol';
 import './libraries/TransferHelper.sol';
 import './interfaces/ISyncSwapRouter.sol';
-import './libraries/UniswapV2Library.sol';
+import './libraries/SyncSwapLibrary.sol';
 import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
@@ -205,7 +205,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         address to,
         uint deadline
     ) external ensure(deadline) returns (uint amountA, uint amountB) {
-        address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
+        address pair = SyncSwapLibrary.pairFor(factory, tokenA, tokenB);
         (amountA, amountB) = _removeLiquidity(pair, tokenA, tokenB, liquidity, amountAMin, amountBMin, to);
     }
 
@@ -243,7 +243,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline
     ) external ensure(deadline) returns (uint amountToken, uint amountETH) {
         address _WETH = WETH;
-        address pair = UniswapV2Library.pairFor(factory, token, _WETH);
+        address pair = SyncSwapLibrary.pairFor(factory, token, _WETH);
         (amountToken, amountETH) = _removeLiquidityETH(_WETH, pair, token, liquidity, amountTokenMin, amountETHMin, to);
     }
 
@@ -257,7 +257,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline,
         bool approveMax, bytes calldata signature
     ) external returns (uint amountA, uint amountB) {
-        address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
+        address pair = SyncSwapLibrary.pairFor(factory, tokenA, tokenB);
 
         { // scope to avoid stack too deep errors
         uint value = approveMax ? uint(-1) : liquidity;
@@ -276,7 +276,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline,
         bool approveMax, bytes calldata signature
     ) external returns (uint amountToken, uint amountETH) {
-        address pair = UniswapV2Library.pairFor(factory, token, WETH);
+        address pair = SyncSwapLibrary.pairFor(factory, token, WETH);
 
         { // scope to avoid stack too deep errors
         uint value = approveMax ? uint(-1) : liquidity;
@@ -321,7 +321,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline
     ) external ensure(deadline) returns (uint amountETH) {
         address _WETH = WETH;
-        address pair = UniswapV2Library.pairFor(factory, token, _WETH);
+        address pair = SyncSwapLibrary.pairFor(factory, token, _WETH);
         amountETH = _removeLiquidityETHSupportingFeeOnTransferTokens(_WETH, pair, token, liquidity, amountTokenMin, amountETHMin, to);
     }
 
@@ -335,7 +335,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountETH) {
         address _WETH = WETH;
-        address pair = UniswapV2Library.pairFor(factory, token, _WETH);
+        address pair = SyncSwapLibrary.pairFor(factory, token, _WETH);
 
         { // scope to avoid stack too deep errors
         uint value = approveMax ? uint(-1) : liquidity;
@@ -356,7 +356,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         bool approveMax, bytes calldata signature
     ) external returns (uint amountETH) {
         address _WETH = WETH;
-        address pair = UniswapV2Library.pairFor(factory, token, _WETH);
+        address pair = SyncSwapLibrary.pairFor(factory, token, _WETH);
 
         { // scope to avoid stack too deep errors
         uint value = approveMax ? uint(-1) : liquidity;
@@ -392,7 +392,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
 
             if (i < end - 1) {
                 address _pair = pair;
-                pair = UniswapV2Library.pairFor(_factory, output, path[i + 2]);
+                pair = SyncSwapLibrary.pairFor(_factory, output, path[i + 2]);
                 _swapSimple(_pair, input, output, _amountOut, pair);
             } else {
                 _swapSimple(pair, input, output, _amountOut, _to);
@@ -408,11 +408,11 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline
     ) external ensure(deadline) returns (uint[] memory amounts) {
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsOut(_factory, amountIn, path);
+        amounts = SyncSwapLibrary.getAmountsOut(_factory, amountIn, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'O');
 
         address tokenIn = path[0];
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, amounts[0]
         );
@@ -428,12 +428,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint deadline
     ) external ensure(deadline) returns (uint[] memory amounts) {
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsIn(_factory, amountOut, path);
+        amounts = SyncSwapLibrary.getAmountsIn(_factory, amountOut, path);
         uint _amountIn = amounts[0];
         require(_amountIn <= amountInMax, 'E');
 
         address tokenIn = path[0];
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, _amountIn
         );
@@ -452,12 +452,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
         require(tokenIn == _WETH, 'P');
 
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsOut(_factory, msg.value, path);
+        amounts = SyncSwapLibrary.getAmountsOut(_factory, msg.value, path);
         require(amounts[amounts.length - 1] >= amountOutMin, 'O');
 
         uint _amountIn = amounts[0];
         IWETH(_WETH).deposit.value(_amountIn)();
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         assert(IWETH(_WETH).transfer(initialPair, _amountIn));
 
         _swap(_factory, initialPair, amounts, path, to);
@@ -472,12 +472,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
         require(path[path.length - 1] == _WETH, 'P');
 
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsIn(_factory, amountOut, path);
+        amounts = SyncSwapLibrary.getAmountsIn(_factory, amountOut, path);
         uint _amountIn = amounts[0];
         require(_amountIn <= amountInMax, 'E');
 
         address tokenIn = path[0];
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, _amountIn
         );
@@ -497,12 +497,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
         require(path[path.length - 1] == _WETH, 'P');
 
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsOut(_factory, amountIn, path);
+        amounts = SyncSwapLibrary.getAmountsOut(_factory, amountIn, path);
         uint _amountOut = amounts[amounts.length - 1];
         require(_amountOut >= amountOutMin, 'O');
 
         address tokenIn = path[0];
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, amounts[0]
         );
@@ -523,12 +523,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
         require(tokenIn == _WETH, 'P');
 
         address _factory = factory;
-        amounts = UniswapV2Library.getAmountsIn(_factory, amountOut, path);
+        amounts = SyncSwapLibrary.getAmountsIn(_factory, amountOut, path);
         uint _amountIn = amounts[0];
         require(_amountIn <= msg.value, 'E');
 
         IWETH(_WETH).deposit.value(_amountIn)();
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         assert(IWETH(_WETH).transfer(initialPair, _amountIn));
 
         _swap(_factory, initialPair, amounts, path, to);
@@ -555,12 +555,12 @@ contract SyncSwapRouter is ISyncSwapRouter {
             (uint reserve0, uint reserve1,) = ISyncSwapPair(pair).getReserves();
             (uint reserveInput, uint reserveOutput) = input < output ? (reserve0, reserve1) : (reserve1, reserve0);
             uint amountInput = IERC20(input).balanceOf(pair).sub(reserveInput);
-            amountOutput = UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput, ISyncSwapPair(pair).getSwapFee());
+            amountOutput = SyncSwapLibrary.getAmountOut(amountInput, reserveInput, reserveOutput, ISyncSwapPair(pair).getSwapFee());
             }
 
             if (i < path.length - 2) {
                 address _pair = pair;
-                pair = UniswapV2Library.pairFor(_factory, output, path[i + 2]);
+                pair = SyncSwapLibrary.pairFor(_factory, output, path[i + 2]);
                 _swapSimple(_pair, input, output, amountOutput, pair);
             } else {
                 _swapSimple(pair, input, output, amountOutput, _to);
@@ -577,7 +577,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
     ) external ensure(deadline) {
         address tokenIn = path[0];
         address _factory = factory;
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, amountIn
         );
@@ -609,7 +609,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         uint amountIn = msg.value;
         IWETH(_WETH).deposit.value(amountIn)();
         address _factory = factory;
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         assert(IWETH(_WETH).transfer(initialPair, amountIn));
 
         address tokenOut = path[path.length - 1];
@@ -637,7 +637,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
 
         address tokenIn = path[0];
         address _factory = factory;
-        address initialPair = UniswapV2Library.pairFor(_factory, tokenIn, path[1]);
+        address initialPair = SyncSwapLibrary.pairFor(_factory, tokenIn, path[1]);
         TransferHelper.safeTransferFrom(
             tokenIn, msg.sender, initialPair, amountIn
         );
@@ -652,7 +652,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
 
     // **** LIBRARY FUNCTIONS ****
     function quote(uint amountA, uint reserveA, uint reserveB) public pure returns (uint amountB) {
-        return UniswapV2Library.quote(amountA, reserveA, reserveB);
+        return SyncSwapLibrary.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, uint swapFee)
@@ -660,7 +660,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         pure
         returns (uint amountOut)
     {
-        return UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut, swapFee);
+        return SyncSwapLibrary.getAmountOut(amountIn, reserveIn, reserveOut, swapFee);
     }
 
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, uint swapFee)
@@ -668,7 +668,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         pure
         returns (uint amountIn)
     {
-        return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut, swapFee);
+        return SyncSwapLibrary.getAmountIn(amountOut, reserveIn, reserveOut, swapFee);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path)
@@ -676,7 +676,7 @@ contract SyncSwapRouter is ISyncSwapRouter {
         view
         returns (uint[] memory amounts)
     {
-        return UniswapV2Library.getAmountsOut(factory, amountIn, path);
+        return SyncSwapLibrary.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(uint amountOut, address[] memory path)
@@ -684,6 +684,6 @@ contract SyncSwapRouter is ISyncSwapRouter {
         view
         returns (uint[] memory amounts)
     {
-        return UniswapV2Library.getAmountsIn(factory, amountOut, path);
+        return SyncSwapLibrary.getAmountsIn(factory, amountOut, path);
     }
 }

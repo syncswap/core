@@ -4,7 +4,7 @@ import '../interfaces/ISyncSwapFactory.sol';
 import '../interfaces/ISyncSwapPair.sol';
 import "./SafeMath.sol";
 
-library UniswapV2Library {
+library SyncSwapLibrary {
     using SafeMath for uint;
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
@@ -26,16 +26,14 @@ library UniswapV2Library {
 
     // fetches and sorts the reserves for a pair
     function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-        (address token0,) = sortTokens(tokenA, tokenB);
         (uint reserve0, uint reserve1,) = ISyncSwapPair(pairFor(factory, tokenA, tokenB)).getReserves();
-        (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+        (reserveA, reserveB) = tokenA < tokenB ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
     function getReservesAndSwapFee(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB, uint swapFee) {
-        (address token0,) = sortTokens(tokenA, tokenB);
         ISyncSwapPair pair = ISyncSwapPair(pairFor(factory, tokenA, tokenB));
         (uint reserve0, uint reserve1,) = pair.getReserves();
-        (reserveA, reserveB, swapFee) = tokenA == token0 ? (reserve0, reserve1, pair.getSwapFee()) : (reserve1, reserve0, pair.getSwapFee());
+        (reserveA, reserveB, swapFee) = tokenA < tokenB ? (reserve0, reserve1, pair.getSwapFee()) : (reserve1, reserve0, pair.getSwapFee());
     }
 
     // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset

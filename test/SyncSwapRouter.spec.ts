@@ -371,7 +371,7 @@ describe('SyncSwapRouter', () => {
         overrides
       )
       const receipt = await tx.wait()
-      expect(receipt.gasUsed).to.eq(110507) // 101898
+      expect(receipt.gasUsed).to.eq(110330) // 101898
     }).retries(3)
   })
 
@@ -515,7 +515,7 @@ describe('SyncSwapRouter', () => {
         }
       )
       const receipt = await tx.wait()
-      expect(receipt.gasUsed).to.eq(115600) // 138770
+      expect(receipt.gasUsed).to.eq(115413) // 138770
     }).retries(3)
   })
 
