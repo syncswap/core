@@ -30,8 +30,13 @@
     "zksync-web3": "^0.7.4"
   },
   "scripts": {
+    "build": "yarn hardhat compile",
     "compile": "yarn hardhat compile",
-    "test": "yarn hardhat test"
+    "test": "yarn hardhat test",
+    "deploy": "./deploy-zksync.sh deployAll"
   },
-  "license": "AGPL-3.0-or-later"
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "@matterlabs/signature-checker": "^1.1.0"
+  }
 }

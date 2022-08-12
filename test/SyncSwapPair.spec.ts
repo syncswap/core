@@ -1,13 +1,10 @@
 import chai, { expect } from 'chai'
 import { BigNumber, Contract } from 'ethers'
 import { solidity } from 'ethereum-waffle'
-import { expandTo18Decimals, mineBlock, encodePrice } from './shared/utilities'
+import { expandTo18Decimals, mineBlock, encodePrice, MINIMUM_LIQUIDITY, ZERO_ADDRESS } from './shared/utilities'
 import { pairFixture } from './shared/fixtures'
-import { zeroAddress } from 'ethereumjs-util'
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-
-const MINIMUM_LIQUIDITY = BigNumber.from(1000)
 
 chai.use(solidity)
 
@@ -47,9 +44,9 @@ describe('SyncSwapPair', () => {
     const expectedLiquidity = expandTo18Decimals(2)
     await expect(pair.mint(wallet.address, overrides))
       .to.emit(pair, 'Transfer')
-      .withArgs(zeroAddress(), zeroAddress(), MINIMUM_LIQUIDITY)
+      .withArgs(ZERO_ADDRESS, ZERO_ADDRESS, MINIMUM_LIQUIDITY)
       .to.emit(pair, 'Transfer')
-      .withArgs(zeroAddress(), wallet.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+      .withArgs(ZERO_ADDRESS, wallet.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
       .to.emit(pair, 'Sync')
       .withArgs(token0Amount, token1Amount)
       .to.emit(pair, 'Mint')
@@ -242,7 +239,7 @@ describe('SyncSwapPair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(82260)
+    expect(receipt.gasUsed).to.eq(80536)
   })
 
   it('swap:gas:0:simple', async () => {
@@ -260,25 +257,7 @@ describe('SyncSwapPair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swapFor0(expectedOutputAmount, wallet.address, overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(81164)
-  })
-
-  it('swap:gas:1', async () => {
-    const token0Amount = expandTo18Decimals(5)
-    const token1Amount = expandTo18Decimals(10)
-    await addLiquidity(token0Amount, token1Amount)
-
-    // ensure that setting price{0,1}CumulativeLast for the first time doesn't affect our gas math
-    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
-    await pair.sync(overrides)
-
-    const swapAmount = expandTo18Decimals(1)
-    const expectedOutputAmount = BigNumber.from('1662497915624478906')
-    await token0.transfer(pair.address, swapAmount)
-    await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
-    const tx = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
-    const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(82260)
+    expect(receipt.gasUsed).to.eq(79388)
   })
 
   it('swap:gas:1:simple', async () => {
@@ -296,7 +275,7 @@ describe('SyncSwapPair', () => {
     await mineBlock((await ethers.provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swapFor1(expectedOutputAmount, wallet.address, overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(81107)
+    expect(receipt.gasUsed).to.eq(79398)
   })
 
   it('burn', async () => {
@@ -308,7 +287,7 @@ describe('SyncSwapPair', () => {
     await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
     await expect(pair.burn(wallet.address, overrides))
       .to.emit(pair, 'Transfer')
-      .withArgs(pair.address, zeroAddress(), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+      .withArgs(pair.address, ZERO_ADDRESS, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
       .to.emit(token0, 'Transfer')
       .withArgs(pair.address, wallet.address, token0Amount.sub(1000))
       .to.emit(token1, 'Transfer')

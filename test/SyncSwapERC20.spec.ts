@@ -1,9 +1,9 @@
 import chai, { expect } from 'chai'
 import { BigNumber, Contract } from 'ethers'
 import { solidity } from 'ethereum-waffle'
-import { expandTo18Decimals, getPairApprovalSignature } from './shared/utilities'
-import { defaultAbiCoder, hexlify, keccak256, toUtf8Bytes } from 'ethers/lib/utils'
-import { deployERC20 } from './shared/fixtures'
+import { expandTo18Decimals, getPermitSignature, getSplittedPermitSignature, MAX_UINT256 } from './shared/utilities'
+import { hexlify } from 'ethers/lib/utils'
+import { deployPairERC20 } from './shared/fixtures'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 chai.use(solidity)
@@ -12,8 +12,6 @@ const hre = require('hardhat');
 
 const TOTAL_SUPPLY = expandTo18Decimals(10000)
 const TEST_AMOUNT = expandTo18Decimals(10)
-
-const MAX_UINT256 = BigNumber.from(2).pow(256).sub(1)
 //const CHAIN_ID = 280
 
 describe('SyncSwapERC20', () => {
@@ -27,13 +25,13 @@ describe('SyncSwapERC20', () => {
 
   let token: Contract
   beforeEach(async () => {
-    token = await deployERC20(TOTAL_SUPPLY)
+    token = await deployPairERC20(TOTAL_SUPPLY)
   })
 
   it('name, symbol, decimals, totalSupply, balanceOf', async () => {
     const name = await token.name()
-    expect(name).to.eq('Uniswap V2')
-    expect(await token.symbol()).to.eq('UNI-V2')
+    expect(name).to.eq('')
+    expect(await token.symbol()).to.eq('')
     expect(await token.decimals()).to.eq(18)
     expect(await token.totalSupply()).to.eq(TOTAL_SUPPLY)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY)
@@ -46,7 +44,7 @@ describe('SyncSwapERC20', () => {
             keccak256(
               toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')
             ),
-            keccak256(toUtf8Bytes('SyncSwap LP Token')),
+            keccak256(toUtf8Bytes('SyncSwap SLP Token')),
             keccak256(toUtf8Bytes('1')),
             CHAIN_ID,
             token.address
@@ -103,7 +101,7 @@ describe('SyncSwapERC20', () => {
   it('permit', async () => {
     const nonce = await token.nonces(wallet.address)
     const deadline = MAX_UINT256
-    const { v, r, s } = await getPairApprovalSignature(
+    const { v, r, s } = await getSplittedPermitSignature(
       wallet,
       token,
       { owner: wallet.address, spender: other.address, value: TEST_AMOUNT },
@@ -112,6 +110,24 @@ describe('SyncSwapERC20', () => {
     )
 
     await expect(token.permit(wallet.address, other.address, TEST_AMOUNT, deadline, v, hexlify(r), hexlify(s)))
+      .to.emit(token, 'Approval')
+      .withArgs(wallet.address, other.address, TEST_AMOUNT)
+    expect(await token.allowance(wallet.address, other.address)).to.eq(TEST_AMOUNT)
+    expect(await token.nonces(wallet.address)).to.eq(BigNumber.from(1))
+  })
+
+  it('permit2', async () => {
+    const nonce = await token.nonces(wallet.address)
+    const deadline = MAX_UINT256
+    const signature = await getPermitSignature(
+      wallet,
+      token,
+      { owner: wallet.address, spender: other.address, value: TEST_AMOUNT },
+      nonce,
+      deadline
+    )
+
+    await expect(token.permit2(wallet.address, other.address, TEST_AMOUNT, deadline, signature))
       .to.emit(token, 'Approval')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(TEST_AMOUNT)
