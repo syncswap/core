@@ -68,9 +68,11 @@ contract SyncSwapERC20 is ISyncSwapERC20 {
     }
 
     function transferFrom(address from, address to, uint value) external returns (bool) {
-        uint _allowance = allowance[from][msg.sender];
-        if (_allowance != uint(-1)) {
-            allowance[from][msg.sender] = _allowance.sub(value);
+        if (from != msg.sender) {
+            uint _allowance = allowance[from][msg.sender];
+            if (_allowance != uint(-1)) {
+                allowance[from][msg.sender] = _allowance.sub(value);
+            }
         }
         balanceOf[from] = balanceOf[from].sub(value);
         balanceOf[to] = balanceOf[to].add(value);
