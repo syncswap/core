@@ -28,4 +28,5 @@ deploy-zksync.sh
 contracts/test/
 
 # zksolc
-zksolc-linux-amd64-v1.1.3
+zksolc*
+soljson*
