@@ -22,10 +22,8 @@ secrets.json
 yarn-error.log
 
 # workspace
-misc/
 deploy/
 deploy-zksync.sh
-contracts/test/
 
 # zksolc
 zksolc*
